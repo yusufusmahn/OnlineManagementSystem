@@ -24,20 +24,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
-                                    throws ServletException, IOException {
+            throws ServletException, IOException {
 
+        String token = null;
+
+        // 1. Try to get token from Authorization header
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
+
+        // 2. If no header, try to get token from cookie
+        if (token == null && request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (cookie.getName().equals("token")) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // 3. If still no token, or invalid, proceed without setting auth
+        if (token == null || !jwtUtil.validateToken(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-        if (!jwtUtil.validateToken(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+        // 4. Extract email and set authentication
         String email = jwtUtil.extractEmail(token);
         var userDetails = userDetailsService.loadUserByUsername(email);
 
@@ -49,4 +62,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }
