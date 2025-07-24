@@ -3,5 +3,6 @@ package com.lms.data.models;
 public enum Role {
     ADMIN,
     STUDENT,
-    INSTRUCTOR
+    INSTRUCTOR,
+    SUPER_ADMIN
 }
