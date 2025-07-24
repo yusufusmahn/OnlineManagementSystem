@@ -1,11 +1,15 @@
 package com.lms.services;
 
+import com.lms.data.models.Role;
 import com.lms.data.models.User;
 import com.lms.data.respositories.UserRepository;
+import com.lms.dto.requests.CreateInstructorRequestDTO;
 import com.lms.dto.requests.UserRequestDTO;
-import com.lms.dto.responses.UserResponseDTO;
+import com.lms.dto.responses.UserResponse;
 import com.lms.exception.EmailAlreadyExistsException;
 import com.lms.exception.ResourceNotFoundException;
+import com.lms.exception.UnauthorizedException;
+import com.lms.security.CurrentUserProvider;
 import com.lms.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,9 +26,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUserProvider currentUserProvider;
+
 
     @Override
-    public UserResponseDTO createUser(UserRequestDTO dto) {
+    public UserResponse createUser(UserRequestDTO dto) {
         String email = dto.getEmail().toLowerCase();
 
         if (userRepository.existsByEmail(email)) {
@@ -40,16 +47,16 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserResponseDTO getUserById(UUID id) {
+    public UserResponse getUserById(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return UserMapper.toDTO(user);
     }
 
     @Override
-    public List<UserResponseDTO> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
-        List<UserResponseDTO> dtos = new ArrayList<>();
+        List<UserResponse> dtos = new ArrayList<>();
 
         for (User user : users) {
             dtos.add(UserMapper.toDTO(user));
@@ -59,7 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO updateUser(UUID id, UserRequestDTO dto) {
+    public UserResponse updateUser(UUID id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
@@ -84,4 +91,60 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.delete(user);
     }
+
+    @Override
+    public UserResponse createInstructor(CreateInstructorRequestDTO dto) {
+        User currentUser = currentUserProvider.getCurrentUser();
+
+        if (!currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new UnauthorizedException("Only SUPER_ADMIN can create instructors.");
+        }
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User instructor = new User();
+        instructor.setName(dto.getName());
+        instructor.setEmail(dto.getEmail().toLowerCase());
+        instructor.setPassword(passwordEncoder.encode(dto.getPassword()));
+        instructor.setRole(Role.INSTRUCTOR);
+
+        userRepository.save(instructor);
+
+        return UserMapper.toDTO(instructor);
+    }
+
+    @Override
+    public void deleteInstructor(UUID instructorId) {
+        User currentUser = currentUserProvider.getCurrentUser();
+
+        if (!currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new UnauthorizedException("Only SUPER_ADMIN can delete instructors.");
+        }
+
+        User instructor = userRepository.findById(instructorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
+
+        if (!instructor.getRole().equals(Role.INSTRUCTOR)) {
+            throw new IllegalArgumentException("The user is not an instructor.");
+        }
+
+        userRepository.delete(instructor);
+    }
+
+    @Override
+    public List<UserResponse> getAllInstructors() {
+        User currentUser = currentUserProvider.getCurrentUser();
+
+        if (!(currentUser.getRole().equals(Role.SUPER_ADMIN) || currentUser.getRole().equals(Role.ADMIN))) {
+            throw new UnauthorizedException("Only Admins and SuperAdmins can view instructors.");
+        }
+
+        List<User> instructors = userRepository.findByRole(Role.INSTRUCTOR);
+        return instructors.stream()
+                .map(UserMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
 }
