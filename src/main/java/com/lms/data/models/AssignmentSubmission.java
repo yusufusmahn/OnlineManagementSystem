@@ -37,6 +37,15 @@ public class AssignmentSubmission {
 
     private LocalDateTime submittedAt;
 
+    @Column(name = "graded_at")
+    private LocalDateTime gradedAt;
+
+    @Column(nullable = true)
+    private String fileUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String feedback;
+
     @PrePersist
     public void setSubmittedAt() {
         this.submittedAt = LocalDateTime.now();
