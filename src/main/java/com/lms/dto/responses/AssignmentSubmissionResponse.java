@@ -11,6 +11,14 @@ public class AssignmentSubmissionResponse {
     private UUID studentId;
     private Long courseId;
     private String content;
-    private String grade; //  New field
+    private String grade;
     private LocalDateTime submittedAt;
+    private String fileUrl;
+    private String studentName;
+    private String courseTitle;
+    private LocalDateTime gradedAt;  //  Optional: Add this for transparency
+    private String feedback;
+
+
+
 }
