@@ -1,23 +1,16 @@
 package com.lms.services;
 
-
-import com.lms.data.models.Course;
-import com.lms.data.models.Enrollment;
-import com.lms.data.respositories.CourseRepository;
-import com.lms.data.respositories.EnrollmentRepository;
-import com.lms.dto.requests.CourseRequestDTO;
+import com.lms.data.models.*;
+import com.lms.data.respositories.*;
+import com.lms.dto.requests.*;
 import com.lms.data.models.User;
-import com.lms.dto.requests.CourseUpdateRequest;
-import com.lms.dto.responses.CourseResponseDTO;
-import com.lms.dto.responses.UserResponse;
-import com.lms.exception.NotFoundException;
-import com.lms.exception.ResourceNotFoundException;
-import com.lms.exception.UnauthorizedException;
+import com.lms.dto.responses.*;
+import com.lms.exception.*;
 import com.lms.security.CurrentUserProvider;
 import com.lms.utils.CourseMapper;
+import com.lms.utils.EmailService;
 import com.lms.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +25,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final CurrentUserProvider currentUserProvider;
     private final EnrollmentRepository enrollmentRepository;
+    private final EmailService emailService; //  Inject this
+
 
     @Override
     public CourseResponseDTO createCourse(CourseRequestDTO dto) {
@@ -44,6 +39,17 @@ public class CourseServiceImpl implements CourseService {
         //  Pass current user as instructor
         Course course = CourseMapper.toCourse(dto, currentUser);
         courseRepository.save(course);
+        //  After saving course
+        try {
+            emailService.sendEmail(
+                    currentUser.getEmail(),
+                    "Course Created Successfully",
+                    "Hi " + currentUser.getName() + ",\n\nYour course \"" + course.getTitle() + "\" has been created successfully."
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send course creation email: " + e.getMessage());
+        }
+
         return CourseMapper.toResponseDTO(course);
     }
 
