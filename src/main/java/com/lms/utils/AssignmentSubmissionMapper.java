@@ -2,7 +2,6 @@ package com.lms.utils;
 
 import com.lms.data.models.AssignmentSubmission;
 import com.lms.dto.responses.AssignmentSubmissionResponse;
-import com.lms.dto.responses.StudentGradeDTO;
 
 public class AssignmentSubmissionMapper {
 
@@ -11,9 +10,15 @@ public class AssignmentSubmissionMapper {
         dto.setId(submission.getId());
         dto.setStudentId(submission.getStudent().getId());
         dto.setCourseId(submission.getCourse().getId());
+        dto.setCourseTitle(submission.getCourse().getTitle());
+        dto.setStudentName(submission.getStudent().getName());
         dto.setContent(submission.getContent());
         dto.setGrade(submission.getGrade()); // Include grade
         dto.setSubmittedAt(submission.getSubmittedAt());
+        dto.setFileUrl(submission.getFileUrl());
+        dto.setFeedback(submission.getFeedback());
+
+
         return dto;
     }
 
