@@ -10,6 +10,7 @@ import com.lms.exception.EmailAlreadyExistsException;
 import com.lms.exception.ResourceNotFoundException;
 import com.lms.exception.UnauthorizedException;
 import com.lms.security.CurrentUserProvider;
+import com.lms.utils.EmailService;
 import com.lms.utils.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CurrentUserProvider currentUserProvider;
+    private final EmailService emailService;
 
 
     @Override
@@ -38,13 +40,58 @@ public class UserServiceImpl implements UserService {
         }
 
         dto.setEmail(email);
-        dto.setPassword(passwordEncoder.encode(dto.getPassword())); //  encode here
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         User user = UserMapper.toEntity(dto);
         User saved = userRepository.save(user);
+
+        // ✅ Send welcome email
+        try {
+            emailService.sendEmail(
+                    saved.getEmail(),
+                    "Welcome to the LMS!",
+                    "Hi " + saved.getName() + ",\n\nWelcome to our Learning Management System. We're excited to have you on board!"
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send welcome email: " + e.getMessage());
+        }
+
         return UserMapper.toDTO(saved);
     }
 
+    @Override
+    public UserResponse createInstructor(CreateInstructorRequestDTO dto) {
+        User currentUser = currentUserProvider.getCurrentUser();
+
+        if (!currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            throw new UnauthorizedException("Only SUPER_ADMIN can create instructors.");
+        }
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User instructor = new User();
+        instructor.setName(dto.getName());
+        instructor.setEmail(dto.getEmail().toLowerCase());
+        instructor.setPassword(passwordEncoder.encode(dto.getPassword()));
+        instructor.setRole(Role.INSTRUCTOR);
+
+        userRepository.save(instructor);
+
+        //  Send welcome email
+        try {
+            emailService.sendEmail(
+                    instructor.getEmail(),
+                    "Instructor Account Created",
+                    "Hi " + instructor.getName() + ",\n\nYour instructor account has been created. You can now start managing your courses."
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send instructor email: " + e.getMessage());
+        }
+
+        return UserMapper.toDTO(instructor);
+    }
 
     @Override
     public UserResponse getUserById(UUID id) {
@@ -92,28 +139,6 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    @Override
-    public UserResponse createInstructor(CreateInstructorRequestDTO dto) {
-        User currentUser = currentUserProvider.getCurrentUser();
-
-        if (!currentUser.getRole().equals(Role.SUPER_ADMIN)) {
-            throw new UnauthorizedException("Only SUPER_ADMIN can create instructors.");
-        }
-
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User instructor = new User();
-        instructor.setName(dto.getName());
-        instructor.setEmail(dto.getEmail().toLowerCase());
-        instructor.setPassword(passwordEncoder.encode(dto.getPassword()));
-        instructor.setRole(Role.INSTRUCTOR);
-
-        userRepository.save(instructor);
-
-        return UserMapper.toDTO(instructor);
-    }
 
     @Override
     public void deleteInstructor(UUID instructorId) {
