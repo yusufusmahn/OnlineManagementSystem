@@ -1,6 +1,7 @@
 package com.lms.controller;
 
 import com.lms.dto.requests.AssignmentSubmissionRequest;
+import com.lms.dto.requests.GradeSubmissionRequest;
 import com.lms.dto.responses.AssignmentSubmissionResponse;
 import com.lms.services.AssignmentSubmissionService;
 import lombok.RequiredArgsConstructor;
@@ -39,14 +40,15 @@ public class AssignmentSubmissionController {
     }
 
 
-    @PostMapping("/{submissionId}/grade")
+    @PatchMapping("/{submissionId}/grade")
     public ResponseEntity<AssignmentSubmissionResponse> gradeSubmission(
             @PathVariable Long submissionId,
-            @RequestParam String grade
+            @RequestBody GradeSubmissionRequest request
     ) {
-        AssignmentSubmissionResponse response = assignmentSubmissionService.gradeSubmission(submissionId, grade);
+        AssignmentSubmissionResponse response = assignmentSubmissionService.gradeSubmission(submissionId, request);
         return ResponseEntity.ok(response);
     }
+
 
     @PutMapping("/{submissionId}")
     public ResponseEntity<AssignmentSubmissionResponse> updateSubmission(
@@ -55,6 +57,13 @@ public class AssignmentSubmissionController {
 
         AssignmentSubmissionResponse updated = assignmentSubmissionService.updateSubmission(submissionId, request);
         return ResponseEntity.ok(updated);
+    }
+
+
+    @GetMapping("/graded")
+    public ResponseEntity<List<AssignmentSubmissionResponse>> getGradedSubmissions() {
+        List<AssignmentSubmissionResponse> submissions = assignmentSubmissionService.getGradedSubmissionsForCurrentStudent();
+        return ResponseEntity.ok(submissions);
     }
 
 
