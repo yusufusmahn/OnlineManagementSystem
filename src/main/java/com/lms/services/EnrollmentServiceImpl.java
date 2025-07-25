@@ -8,6 +8,7 @@ import com.lms.data.respositories.EnrollmentRepository;
 import com.lms.exception.BadRequestException;
 import com.lms.exception.ResourceNotFoundException;
 import com.lms.security.CurrentUserProvider;
+import com.lms.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final EmailService emailService; //  Inject this
 
     @Override
     public void enrollInCourse(String courseId) {
@@ -42,6 +44,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .build();
 
         enrollmentRepository.save(enrollment);
+        //  After saving enrollment
+        try {
+            emailService.sendEmail(
+                    student.getEmail(),
+                    "Course Enrollment Successful",
+                    "Hi " + student.getName() + ",\n\nYou've successfully enrolled in the course: " + course.getTitle()
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send enrollment email: " + e.getMessage());
+        }
+
     }
 
     @Override
