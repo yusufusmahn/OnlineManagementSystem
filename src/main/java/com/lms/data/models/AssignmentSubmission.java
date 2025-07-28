@@ -33,7 +33,7 @@ public class AssignmentSubmission {
     @Lob
     private String content;
 
-    private String grade; // Add this field
+    private String grade;
 
     private LocalDateTime submittedAt;
 
