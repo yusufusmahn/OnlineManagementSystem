@@ -13,7 +13,7 @@ public class AssignmentSubmissionMapper {
         dto.setCourseTitle(submission.getCourse().getTitle());
         dto.setStudentName(submission.getStudent().getName());
         dto.setContent(submission.getContent());
-        dto.setGrade(submission.getGrade()); // Include grade
+        dto.setGrade(submission.getGrade());
         dto.setSubmittedAt(submission.getSubmittedAt());
         dto.setFileUrl(submission.getFileUrl());
         dto.setFeedback(submission.getFeedback());
