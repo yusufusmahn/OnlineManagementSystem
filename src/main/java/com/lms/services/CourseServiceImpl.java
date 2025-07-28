@@ -25,7 +25,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final CurrentUserProvider currentUserProvider;
     private final EnrollmentRepository enrollmentRepository;
-    private final EmailService emailService; //  Inject this
+    private final EmailService emailService;
 
 
     @Override
@@ -36,10 +36,9 @@ public class CourseServiceImpl implements CourseService {
             throw new UnauthorizedException("Only admins can create courses.");
         }
 
-        //  Pass current user as instructor
         Course course = CourseMapper.toCourse(dto, currentUser);
         courseRepository.save(course);
-        //  After saving course
+
         try {
             emailService.sendEmail(
                     currentUser.getEmail(),
