@@ -23,7 +23,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CurrentUserProvider currentUserProvider;
-    private final EmailService emailService; //  Inject this
+    private final EmailService emailService;
     private final CloudinaryService cloudinaryService;
 
 
@@ -58,7 +58,6 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
 
         AssignmentSubmission saved = submissionRepository.save(submission);
 
-        // Send email
         try {
             emailService.sendEmail(
                     student.getEmail(),
@@ -163,7 +162,7 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         }
 
         submission.setGrade(request.getGrade());
-        submission.setFeedback(request.getFeedback()); //  Set feedback
+        submission.setFeedback(request.getFeedback());
         submission.setGradedAt(LocalDateTime.now());
 
         AssignmentSubmission saved = submissionRepository.save(submission);
@@ -196,17 +195,14 @@ public class AssignmentSubmissionServiceImpl implements AssignmentSubmissionServ
         AssignmentSubmission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Submission not found"));
 
-        // Ensure the submission belongs to the current student
         if (!submission.getStudent().getId().equals(student.getId())) {
             throw new UnauthorizedException("You can only update your own submissions.");
         }
 
-        // Update content if provided
         if (request.getContent() != null && !request.getContent().isBlank()) {
             submission.setContent(request.getContent());
         }
 
-        // Upload and update file if provided
         if (request.getFile() != null && !request.getFile().isEmpty()) {
             try {
                 String newFileUrl = cloudinaryService.uploadFile(request.getFile());
