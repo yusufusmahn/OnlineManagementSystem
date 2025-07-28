@@ -45,7 +45,6 @@ public class UserServiceImpl implements UserService {
         User user = UserMapper.toEntity(dto);
         User saved = userRepository.save(user);
 
-        // ✅ Send welcome email
         try {
             emailService.sendEmail(
                     saved.getEmail(),
@@ -79,7 +78,6 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(instructor);
 
-        //  Send welcome email
         try {
             emailService.sendEmail(
                     instructor.getEmail(),
