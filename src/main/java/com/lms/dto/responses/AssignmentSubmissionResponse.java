@@ -16,7 +16,7 @@ public class AssignmentSubmissionResponse {
     private String fileUrl;
     private String studentName;
     private String courseTitle;
-    private LocalDateTime gradedAt;  //  Optional: Add this for transparency
+    private LocalDateTime gradedAt;
     private String feedback;
 
 
