@@ -28,7 +28,7 @@ public class AuthenticationService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final EmailService emailService; //  Add this
+    private final EmailService emailService;
 
 
 
@@ -44,17 +44,14 @@ public class AuthenticationService {
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
-        // Create HttpOnly cookie
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); //  Set true in production (HTTPS only)
+        cookie.setSecure(false);
         cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60); // 1 day
+        cookie.setMaxAge(24 * 60 * 60);
 
-        // Add cookie to response
         response.addCookie(cookie);
 
-        // Return JSON token also (so Postman can read it)
         LoginResponse loginResponse = new LoginResponse(user.getName(), user.getEmail(), user.getRole(), token);
 
         return ResponseEntity.ok(loginResponse);

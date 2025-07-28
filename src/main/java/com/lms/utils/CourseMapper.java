@@ -11,7 +11,6 @@ import com.lms.data.models.User;
 
 public class CourseMapper {
 
-    // You must pass the actual User (instructor) when mapping
     public static Course toCourse(CourseRequestDTO dto, User instructor) {
         return Course.builder()
                 .title(dto.getTitle())
@@ -26,7 +25,7 @@ public class CourseMapper {
                 .id(course.getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
-                .instructorName(course.getInstructor().getName()) //  fixed
+                .instructorName(course.getInstructor().getName())
                 .price(course.getPrice())
                 .createdAt(course.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .build();
