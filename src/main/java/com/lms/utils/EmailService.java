@@ -19,7 +19,7 @@ public class EmailService {
     public void sendEmail(String to, String subject, String content) throws IOException {
         Email from = new Email(FROM_EMAIL);
         Email toEmail = new Email(to);
-        Content emailContent = new Content("text/plain", content);  // correct type
+        Content emailContent = new Content("text/plain", content);
         Mail mail = new Mail(from, subject, toEmail, emailContent);
 
         SendGrid sg = new SendGrid(API_KEY);
