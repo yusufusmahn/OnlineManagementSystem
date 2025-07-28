@@ -10,9 +10,9 @@ public class UserMapper {
     public static User toEntity(UserRequestDTO dto) {
         User user = new User();
         user.setName(dto.getName());
-        user.setEmail(dto.getEmail().toLowerCase()); // normalize
+        user.setEmail(dto.getEmail().toLowerCase());
         user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole()); // NEW
+        user.setRole(dto.getRole());
 
         return user;
     }
@@ -22,7 +22,7 @@ public class UserMapper {
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
-        dto.setRole(user.getRole()); //  correct direction
+        dto.setRole(user.getRole());
         return dto;
     }
 
