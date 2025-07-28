@@ -7,6 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class AssignmentSubmissionRequest {
     private Long courseId;
     private String content;
-    private MultipartFile file; // for the uploaded file
+    private MultipartFile file;
 
 }
