@@ -14,9 +14,7 @@ import java.util.List;
 public interface CourseService {
     CourseResponseDTO createCourse(CourseRequestDTO dto);
     List<CourseResponseDTO> getAllCourses();
-    // CourseService.java
     void updateCourse(String courseId, CourseUpdateRequest request);
-    // CourseService.java
     void deleteCourse(String courseId);
     List<UserResponse> getEnrolledStudents(Long courseId);
 
