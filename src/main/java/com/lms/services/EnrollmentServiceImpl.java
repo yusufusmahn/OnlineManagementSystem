@@ -21,7 +21,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
     private final CurrentUserProvider currentUserProvider;
-    private final EmailService emailService; //  Inject this
+    private final EmailService emailService;
 
     @Override
     public void enrollInCourse(String courseId) {
@@ -44,7 +44,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .build();
 
         enrollmentRepository.save(enrollment);
-        //  After saving enrollment
+
         try {
             emailService.sendEmail(
                     student.getEmail(),
@@ -68,7 +68,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         List<Enrollment> enrollments = enrollmentRepository.findByStudent(student);
         return enrollments.stream()
                 .map(Enrollment::getCourse)
-                .toList(); // If you're using Java 8, use .collect(Collectors.toList()) instead
+                .toList();
     }
 
 }
