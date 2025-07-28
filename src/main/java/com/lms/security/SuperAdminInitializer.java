@@ -21,7 +21,6 @@ public class SuperAdminInitializer {
         String email = Env.getOrDefault("SUPERADMIN_EMAIL", "superadmin@lms.com");
         String password = Env.getOrDefault("SUPERADMIN_PASSWORD", "supersecurepassword");
 
-        // Debug line to confirm .env values are loading correctly
         System.out.println("Loaded SuperAdmin email: " + email);
 
         if (userRepository.findByEmailIgnoreCase(email).isEmpty()) {
@@ -33,9 +32,9 @@ public class SuperAdminInitializer {
                     .build();
 
             userRepository.save(superAdmin);
-            System.out.println("✅ SuperAdmin created: " + email);
+            System.out.println("SuperAdmin created: " + email);
         } else {
-            System.out.println("ℹ️ SuperAdmin already exists. Skipping creation.");
+            System.out.println("SuperAdmin already exists. Skipping creation.");
         }
     }
 
