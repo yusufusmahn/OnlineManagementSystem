@@ -21,9 +21,9 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
     private final CourseRepository courseRepository;
-    private final CloudinaryService cloudinaryService; // Replace if you use another storage
-    private final EmailService emailService; // Inject this
-    private final EnrollmentRepository enrollmentRepository; // needed to notify students
+    private final CloudinaryService cloudinaryService;
+    private final EmailService emailService;
+    private final EnrollmentRepository enrollmentRepository;
     private final CurrentUserProvider currentUserProvider;
 
     @Override
