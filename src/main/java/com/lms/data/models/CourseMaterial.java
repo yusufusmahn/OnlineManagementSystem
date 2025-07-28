@@ -19,7 +19,7 @@ public class CourseMaterial {
 
     private String title;
 
-    private String type; // e.g., "video", "pdf", etc.
+    private String type;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
